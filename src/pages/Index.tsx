@@ -1,11 +1,17 @@
+import { useState } from "react";
 import MotivationalQuote from "@/components/MotivationalQuote";
 import LiveClock from "@/components/LiveClock";
-import DailyTasks from "@/components/DailyTasks";
-import LongTermTasks from "@/components/LongTermTasks";
+import DailyTasks, { type DailyTask } from "@/components/DailyTasks";
+import LongTermTasks, { type LongTask } from "@/components/LongTermTasks";
 import FestivalCalendar from "@/components/FestivalCalendar";
+import GoalStats from "@/components/GoalStats";
+import CountdownTimer from "@/components/CountdownTimer";
 import { motion } from "framer-motion";
 
 const Index = () => {
+  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
+  const [longTasks, setLongTasks] = useState<LongTask[]>([]);
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <motion.header
@@ -23,13 +29,20 @@ const Index = () => {
         {/* Left column */}
         <div className="space-y-6">
           <MotivationalQuote />
+          <GoalStats
+            dailyTotal={dailyTasks.length}
+            dailyDone={dailyTasks.filter(t => t.done).length}
+            longTotal={longTasks.length}
+            longDone={longTasks.filter(t => t.done).length}
+          />
           <LiveClock />
+          <CountdownTimer />
         </div>
 
         {/* Center column */}
         <div className="space-y-6">
-          <DailyTasks />
-          <LongTermTasks />
+          <DailyTasks tasks={dailyTasks} setTasks={setDailyTasks} />
+          <LongTermTasks tasks={longTasks} setTasks={setLongTasks} />
         </div>
 
         {/* Right column */}
