@@ -57,6 +57,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        festival: "hsl(var(--festival))",
+        "festival-foreground": "hsl(var(--festival-foreground))",
+        weekend: "hsl(var(--weekend))",
+        "weekend-foreground": "hsl(var(--weekend-foreground))",
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
       },
       borderRadius: {
         lg: "var(--radius)",
