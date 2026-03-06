@@ -61,8 +61,18 @@ export default {
         "festival-foreground": "hsl(var(--festival-foreground))",
         weekend: "hsl(var(--weekend))",
         "weekend-foreground": "hsl(var(--weekend-foreground))",
-        success: "hsl(var(--success))",
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
         warning: "hsl(var(--warning))",
+        celebrate: {
+          1: "hsl(var(--celebrate-1))",
+          2: "hsl(var(--celebrate-2))",
+          3: "hsl(var(--celebrate-3))",
+          4: "hsl(var(--celebrate-4))",
+          5: "hsl(var(--celebrate-5))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
