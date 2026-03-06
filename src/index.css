@@ -50,8 +50,14 @@
     --weekend: 200 60% 45%;
     --weekend-foreground: 200 80% 90%;
     --success: 142 71% 45%;
+    --success-foreground: 142 80% 90%;
     --warning: 38 92% 50%;
     --clock-glow: 38 92% 50%;
+    --celebrate-1: 340 82% 52%;
+    --celebrate-2: 262 83% 58%;
+    --celebrate-3: 173 80% 40%;
+    --celebrate-4: 38 92% 50%;
+    --celebrate-5: 200 98% 48%;
   }
 }
 
@@ -79,6 +85,14 @@
     text-shadow: 0 0 30px hsl(38 92% 50% / 0.3);
   }
 
+  .glow-success {
+    box-shadow: 0 0 20px hsl(142 71% 45% / 0.25), 0 0 60px hsl(142 71% 45% / 0.08);
+  }
+
+  .glow-celebrate {
+    box-shadow: 0 0 30px hsl(340 82% 52% / 0.2), 0 0 60px hsl(262 83% 58% / 0.15), 0 0 90px hsl(38 92% 50% / 0.1);
+  }
+
   .glass {
     background: hsl(240 8% 10% / 0.8);
     backdrop-filter: blur(20px);
@@ -95,4 +109,27 @@
     background: hsl(240 6% 25%);
     border-radius: 4px;
   }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes celebrate-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes rainbow-border {
+  0% { border-color: hsl(var(--celebrate-1)); }
+  25% { border-color: hsl(var(--celebrate-2)); }
+  50% { border-color: hsl(var(--celebrate-3)); }
+  75% { border-color: hsl(var(--celebrate-4)); }
+  100% { border-color: hsl(var(--celebrate-1)); }
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: var(--progress-width); }
 }
