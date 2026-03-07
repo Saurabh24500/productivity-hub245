@@ -3,6 +3,7 @@ import MotivationalQuote from "@/components/MotivationalQuote";
 import LiveClock from "@/components/LiveClock";
 import DailyTasks, { type DailyTask } from "@/components/DailyTasks";
 import LongTermTasks, { type LongTask } from "@/components/LongTermTasks";
+import DailyChecklist, { type ChecklistItem } from "@/components/DailyChecklist";
 import FestivalCalendar from "@/components/FestivalCalendar";
 import GoalStats from "@/components/GoalStats";
 import CountdownTimer from "@/components/CountdownTimer";
@@ -11,6 +12,7 @@ import { motion } from "framer-motion";
 const Index = () => {
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
   const [longTasks, setLongTasks] = useState<LongTask[]>([]);
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -34,6 +36,8 @@ const Index = () => {
             dailyDone={dailyTasks.filter(t => t.done).length}
             longTotal={longTasks.length}
             longDone={longTasks.filter(t => t.done).length}
+            checklistTotal={checklistItems.length}
+            checklistDone={checklistItems.filter(i => i.done).length}
           />
           <LiveClock />
           <CountdownTimer />
@@ -41,6 +45,7 @@ const Index = () => {
 
         {/* Center column */}
         <div className="space-y-6">
+          <DailyChecklist items={checklistItems} setItems={setChecklistItems} />
           <DailyTasks tasks={dailyTasks} setTasks={setDailyTasks} />
           <LongTermTasks tasks={longTasks} setTasks={setLongTasks} />
         </div>

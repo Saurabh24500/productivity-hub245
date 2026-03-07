@@ -1,16 +1,18 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Target, Flame, TrendingUp } from "lucide-react";
+import { Trophy, Target, Flame, TrendingUp, CheckSquare } from "lucide-react";
 
 interface GoalStatsProps {
   dailyTotal: number;
   dailyDone: number;
   longTotal: number;
   longDone: number;
+  checklistTotal: number;
+  checklistDone: number;
 }
 
-const GoalStats = ({ dailyTotal, dailyDone, longTotal, longDone }: GoalStatsProps) => {
-  const overallTotal = dailyTotal + longTotal;
-  const overallDone = dailyDone + longDone;
+const GoalStats = ({ dailyTotal, dailyDone, longTotal, longDone, checklistTotal, checklistDone }: GoalStatsProps) => {
+  const overallTotal = dailyTotal + longTotal + checklistTotal;
+  const overallDone = dailyDone + longDone + checklistDone;
   const overallPercent = overallTotal > 0 ? Math.round((overallDone / overallTotal) * 100) : 0;
   const dailyPercent = dailyTotal > 0 ? Math.round((dailyDone / dailyTotal) * 100) : 0;
   const longPercent = longTotal > 0 ? Math.round((longDone / longTotal) * 100) : 0;
@@ -76,8 +78,8 @@ const GoalStats = ({ dailyTotal, dailyDone, longTotal, longDone }: GoalStatsProp
         <p className="text-xs text-muted-foreground mt-1">{overallDone}/{overallTotal} goals completed</p>
       </div>
 
-      {/* Daily & Long-term side by side */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Daily, Checklist & Long-term */}
+      <div className="grid grid-cols-3 gap-3">
         <StatCard
           icon={<Flame className="w-4 h-4 text-celebrate-1" />}
           label="Daily"
@@ -85,6 +87,14 @@ const GoalStats = ({ dailyTotal, dailyDone, longTotal, longDone }: GoalStatsProp
           total={dailyTotal}
           percent={dailyPercent}
           color={getVibeColor(dailyPercent)}
+        />
+        <StatCard
+          icon={<CheckSquare className="w-4 h-4 text-celebrate-2" />}
+          label="Checklist"
+          done={checklistDone}
+          total={checklistTotal}
+          percent={checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0}
+          color={getVibeColor(checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0)}
         />
         <StatCard
           icon={<TrendingUp className="w-4 h-4 text-celebrate-5" />}
