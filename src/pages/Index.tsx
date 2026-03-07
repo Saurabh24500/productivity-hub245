@@ -36,6 +36,8 @@ const Index = () => {
             dailyDone={dailyTasks.filter(t => t.done).length}
             longTotal={longTasks.length}
             longDone={longTasks.filter(t => t.done).length}
+            checklistTotal={checklistItems.length}
+            checklistDone={checklistItems.filter(i => i.done).length}
           />
           <LiveClock />
           <CountdownTimer />
@@ -43,6 +45,7 @@ const Index = () => {
 
         {/* Center column */}
         <div className="space-y-6">
+          <DailyChecklist items={checklistItems} setItems={setChecklistItems} />
           <DailyTasks tasks={dailyTasks} setTasks={setDailyTasks} />
           <LongTermTasks tasks={longTasks} setTasks={setLongTasks} />
         </div>
