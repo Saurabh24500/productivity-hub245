@@ -145,10 +145,16 @@ const FestivalCalendar = () => {
           {indianFestivals2026
             .filter(f => f.date.startsWith(String(currentMonth + 1).padStart(2, '0')))
             .map((f, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs bg-secondary rounded px-2 py-1.5">
-                <Star className="w-3 h-3 text-festival shrink-0" />
-                <span className="text-foreground">{f.name}</span>
-                <span className="text-muted-foreground ml-auto">{f.date.split('-')[1]}</span>
+              <div key={i} className="flex flex-col gap-0.5 text-xs bg-secondary rounded px-2 py-1.5">
+                <div className="flex items-center gap-2">
+                  <Star className="w-3 h-3 text-festival shrink-0" />
+                  <span className="text-foreground">{f.nameGu}</span>
+                  <span className="text-muted-foreground ml-auto">{f.date.split('-')[1]}</span>
+                </div>
+                <span className="text-muted-foreground pl-5 text-[10px]">{f.name}</span>
+                {f.description && (
+                  <span className="text-muted-foreground/70 pl-5 text-[10px] italic">{f.description}</span>
+                )}
               </div>
             ))}
         </div>
