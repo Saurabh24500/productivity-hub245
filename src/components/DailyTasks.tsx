@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ChevronUp, ChevronDown, Trash2, CheckCircle2, Circle, PartyPopper, Tag } from "lucide-react";
+import { Plus, ChevronUp, ChevronDown, Trash2, CheckCircle2, Circle, PartyPopper, Tag, Bell, BellOff, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,12 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 export interface DailyTask {
   id: string;
   text: string;
   done: boolean;
   category: "personal" | "work" | "health" | "learning";
+  reminderTime?: string; // HH:mm format
+  reminderFired?: boolean;
 }
 
 interface DailyTasksProps {
@@ -44,32 +47,131 @@ const getCategoryBg = (cat: string) => {
   }
 };
 
+// Simple beep using Web Audio API
+const playAlarmSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const playBeep = (freq: number, startTime: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = "sine";
+      gain.gain.setValueAtTime(0.3, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    };
+    // 3 beeps
+    playBeep(880, ctx.currentTime, 0.15);
+    playBeep(880, ctx.currentTime + 0.2, 0.15);
+    playBeep(1100, ctx.currentTime + 0.4, 0.3);
+  } catch (e) {
+    console.warn("Audio not supported");
+  }
+};
+
+const sendNotification = (taskText: string) => {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification("⏰ Task Reminder", {
+      body: taskText,
+      icon: "/favicon.ico",
+    });
+  }
+};
+
 const DailyTasks = ({ tasks, setTasks }: DailyTasksProps) => {
   const [input, setInput] = useState("");
   const [category, setCategory] = useState<DailyTask["category"]>("personal");
+  const [reminderTime, setReminderTime] = useState("");
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Check reminders every 30 seconds
+  const checkReminders = useCallback(() => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    setTasks(prev =>
+      prev.map(t => {
+        if (t.reminderTime && !t.reminderFired && !t.done && t.reminderTime === currentTime) {
+          playAlarmSound();
+          sendNotification(t.text);
+          toast(`⏰ Reminder: ${t.text}`, { duration: 10000 });
+          return { ...t, reminderFired: true };
+        }
+        return t;
+      })
+    );
+  }, [setTasks]);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(checkReminders, 30000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [checkReminders]);
 
   const addTask = () => {
     if (!input.trim()) return;
-    setTasks(prev => [...prev, { id: Date.now().toString(), text: input.trim(), done: false, category }]);
+    setTasks(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        text: input.trim(),
+        done: false,
+        category,
+        reminderTime: reminderTime || undefined,
+        reminderFired: false,
+      },
+    ]);
     setInput("");
+    setReminderTime("");
+    if (reminderTime) {
+      toast.success(`Alarm set for ${reminderTime}`);
+    }
   };
 
   const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === id) {
-        if (!t.done) {
-          setJustCompleted(id);
-          setTimeout(() => setJustCompleted(null), 2000);
+    setTasks(prev =>
+      prev.map(t => {
+        if (t.id === id) {
+          if (!t.done) {
+            setJustCompleted(id);
+            setTimeout(() => setJustCompleted(null), 2000);
+          }
+          return { ...t, done: !t.done };
         }
-        return { ...t, done: !t.done };
-      }
-      return t;
-    }));
+        return t;
+      })
+    );
   };
 
   const removeTask = (id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
+  };
+
+  const toggleReminder = (id: string) => {
+    setTasks(prev =>
+      prev.map(t => {
+        if (t.id === id) {
+          if (t.reminderTime) {
+            return { ...t, reminderTime: undefined, reminderFired: false };
+          }
+          // If no reminder, prompt won't work nicely — skip for now
+          return t;
+        }
+        return t;
+      })
+    );
   };
 
   const moveTask = (index: number, direction: "up" | "down") => {
@@ -118,6 +220,17 @@ const DailyTasks = ({ tasks, setTasks }: DailyTasksProps) => {
             ))}
           </SelectContent>
         </Select>
+
+        <div className="relative flex items-center">
+          <Clock className="w-3 h-3 text-muted-foreground absolute left-2 pointer-events-none" />
+          <input
+            type="time"
+            value={reminderTime}
+            onChange={e => setReminderTime(e.target.value)}
+            className="bg-secondary border border-border rounded-md h-8 text-xs text-foreground pl-7 pr-2 focus:outline-none focus:ring-1 focus:ring-primary"
+            title="Set alarm time"
+          />
+        </div>
       </div>
 
       <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
@@ -158,11 +271,25 @@ const DailyTasks = ({ tasks, setTasks }: DailyTasksProps) => {
                 <span className={`text-sm ${task.done ? "line-through text-muted-foreground" : "text-foreground"}`}>
                   {task.text}
                 </span>
-                <span className={`ml-2 text-xs ${getCategoryColor(task.category)} opacity-60`}>
-                  {CATEGORIES.find(c => c.value === task.category)?.label}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs ${getCategoryColor(task.category)} opacity-60`}>
+                    {CATEGORIES.find(c => c.value === task.category)?.label}
+                  </span>
+                  {task.reminderTime && (
+                    <span className={`text-[10px] flex items-center gap-0.5 ${task.reminderFired ? "text-celebrate-1" : "text-muted-foreground"}`}>
+                      <Bell className="w-3 h-3" /> {task.reminderTime}
+                      {task.reminderFired && " ✓"}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {task.reminderTime && (
+                  <button onClick={() => toggleReminder(task.id)}
+                    className="p-1 text-muted-foreground hover:text-destructive" title="Remove alarm">
+                    <BellOff className="w-4 h-4" />
+                  </button>
+                )}
                 <button onClick={() => moveTask(i, "up")} disabled={i === 0}
                   className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30">
                   <ChevronUp className="w-4 h-4" />
