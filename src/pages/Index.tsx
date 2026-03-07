@@ -36,8 +36,8 @@ const Index = () => {
             dailyDone={dailyTasks.filter(t => t.done).length}
             longTotal={longTasks.length}
             longDone={longTasks.filter(t => t.done).length}
-            checklistTotal={checklistItems.length}
-            checklistDone={checklistItems.filter(i => i.done).length}
+            checklistTotal={checklistItems.length * 7}
+            checklistDone={checklistItems.reduce((s, i) => s + i.completedDates.length, 0)}
           />
           <LiveClock />
           <CountdownTimer />
