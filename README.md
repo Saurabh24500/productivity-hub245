@@ -2,6 +2,8 @@
 
 ## Project info
 
+# I made this website to arrange my task propely and i can use my time efficiantly.
+
 Working URL: https://productivity-hub245.lovable.app
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
