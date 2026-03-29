@@ -4,6 +4,8 @@
 
 # I made this website to arrange my task propely and i can use my time efficiantly.
 
+This is work not properly so i made another branch so use thatuntil this under work.
+
 Working URL: https://productivity-hub245.lovable.app
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
