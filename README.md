@@ -49,7 +49,7 @@ npm run dev
 - Make your changes and commit the changes.
 
 **Use GitHub Codespaces**
-
+It's the best for small debuging and fast work then commit.
 - Navigate to the main page of your repository.
 - Click on the "Code" button (green button) near the top right.
 - Select the "Codespaces" tab.
